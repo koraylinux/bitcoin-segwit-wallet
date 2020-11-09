@@ -8,7 +8,6 @@
 *  Create printable paper wallets with multiple designs
 *  Generate BIP39 mnemonic seeds
 *  View details and derived addresses of BIP39 mnemonic seeds
-*  The entire page is a single html file, so it can be saved easily 
 
 ## Libraries used:
 *  BigNumber (BN): https://github.com/indutny/bn.js
