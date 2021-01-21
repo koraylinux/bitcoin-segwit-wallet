@@ -159,7 +159,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             randomnessCanvasCTX.beginPath();
             randomnessCanvasCTX.arc(x, y, 4, 0, Math.PI * 2);
             randomnessCanvasCTX.fill();
-            randomnessText.textContent = "Move your mouse around here for randomness\n" + Math.floor(randomnessIndex / randomnessMax * 100) + "%";
+            randomnessText.textContent = "Güçlü anahtar oluşturmak için fareyi beyaz alanda sürükleyin\n" + Math.floor(randomnessIndex / randomnessMax * 100) + "%";
             tempRandomnessBytes[randomnessIndex++] = event.clientX + event.clientY * document.documentElement.clientWidth;
         };
         randomnessCanvasCTX.fillStyle = "#5b96f7";
@@ -334,7 +334,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     var bip38generate_ownersalt = null;
     function bip38generate(password, count, type, progress, callback) {
         if (password === "") {
-            callback("Password must not be empty");
+            callback("Şifre boş olamaz");
             return;
         }
         var ownersalt = get32SecureRandomBytes().slice(0, 8);
@@ -419,13 +419,13 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         }
     }
     function bip38decrypt_button() {
-        document.getElementById("view_address_information").textContent = "Decrypting...";
+        document.getElementById("view_address_information").textContent = "Çözülüyor...";
         setImmediate(function () {
             var privkey = document.getElementById("view_address_privkey_textbox").value;
             var password = document.getElementById("view_address_bip38_password_textbox").value;
             var result = bip38decrypt(privkey, password);
             if (typeof result === "string") {
-                document.getElementById("view_address_information").textContent = "Cannot decrypt address (" + result + ")";
+                document.getElementById("view_address_information").textContent = "Adres çözülemedi (" + result + ")";
                 document.getElementById("view_address_segwitaddress").textContent = "";
                 document.getElementById("view_address_bech32address").textContent = "";
                 document.getElementById("view_address_legacyaddress").textContent = "";
@@ -439,7 +439,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                 return;
             var result2 = view_address_details_result(result.privkey);
             if (typeof result2 === "string") {
-                document.getElementById("view_address_information").textContent = "Error decoding private key (" + result + ")";
+                document.getElementById("view_address_information").textContent = "Özel anahtar çözülemedi (" + result + ")";
                 document.getElementById("view_address_segwitaddress").textContent = "";
                 document.getElementById("view_address_bech32address").textContent = "";
                 document.getElementById("view_address_legacyaddress").textContent = "";
@@ -451,11 +451,11 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             }
             if (typeof result2 === "number")
                 return;
-            document.getElementById("view_address_information").innerHTML = "Details for encrypted private key: <strong>" +
-                privkey + "</strong><br /><br />Decrypted private key: <strong>" + result.privkey + "</strong>";
-            document.getElementById("view_address_segwitaddress").textContent = "Segwit address: " + result2.segwitAddress;
-            document.getElementById("view_address_bech32address").textContent = "Segwit (bech32) address: " + result2.bech32Address;
-            document.getElementById("view_address_legacyaddress").textContent = "Legacy address: " + result2.legacyAddress;
+            document.getElementById("view_address_information").innerHTML = "Şifrelenmiş özel anahtarın detayları: <strong>" +
+                privkey + "</strong><br /><br />Çözülen özel anahtar: <strong>" + result.privkey + "</strong>";
+            document.getElementById("view_address_segwitaddress").textContent = "Segwit Adres: " + result2.segwitAddress;
+            document.getElementById("view_address_bech32address").textContent = "Segwit (bech32) Adres: " + result2.bech32Address;
+            document.getElementById("view_address_legacyaddress").textContent = "Legacy Adres: " + result2.legacyAddress;
             var segwitQR = qrcode(0, qrErrorCorrectionLevel);
             segwitQR.addData(result2.segwitAddress);
             segwitQR.make();
@@ -477,7 +477,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     function bip38decrypt(privkey, password, dummyTest) {
         if (dummyTest === void 0) { dummyTest = false; }
         if (password === "" && !dummyTest)
-            return "password must not be empty";
+            return "şifre boş olmamalıdır";
         var newstring = privkey.split("").reverse().join("");
         for (var i = 0; i < privkey.length; ++i) {
             if (privkey[i] === base58Characters[0])
@@ -490,14 +490,14 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             bigint = bigint.mul(bn_58).add(new BN(base58CharsIndices[newstring[i]]));
         var bytes = bigintToByteArray(bigint);
         if (bytes.length !== 43)
-            return "invalid length";
+            return "geçersiz uzunluk";
         bytes.reverse();
         var checksum = bytes.slice(bytes.length - 4, bytes.length);
         bytes.splice(bytes.length - 4, 4);
         var sha_result = SHA256(SHA256(bytes));
         for (var i = 0; i < 4; ++i) {
             if (sha_result[i] !== checksum[i])
-                return "invalid checksum";
+                return "geçersiz checksum değeri";
         }
         if (bytes[0] !== 0x01)
             return "invalid byte at position 0";
@@ -507,7 +507,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         // putting any here so it works
         if (bytes[0] === 0x43) {
             if ((bytes[1] & 0x20) === 0)
-                return "only compressed private keys are supported";
+                return "sadece sıkıştırılmış özel anahtarlar destekleniyor";
             if (dummyTest)
                 return 1; // dummy return value, only for checking if the private key is in the correct format
             var ownersalt = bytes.slice(6, 14);
@@ -542,7 +542,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             var finaladdresshash = SHA256(SHA256(finaladdress));
             for (var i = 0; i < 4; ++i) {
                 if (addresshash[i] !== finaladdresshash[i])
-                    return "invalid password";
+                    return "hatalı şifre";
             }
             var finalprivkey = makePrivateKey(finalprivkeybigint);
             return {
@@ -552,7 +552,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         }
         else if (bytes[0] === 0x42) {
             if (bytes[1] !== 0xe0)
-                return "only compressed private keys are supported";
+                return "sadece sıkıştırılmış özel anahtarlar destekleniyor";
             if (dummyTest)
                 return 1;
             var addresshash = bytes.slice(2, 6);
@@ -565,7 +565,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             var finaladdresshash = SHA256(SHA256(finaladdress));
             for (var i = 0; i < 4; ++i) {
                 if (addresshash[i] !== finaladdresshash[i])
-                    return "invalid password";
+                    return "hatalı şifre";
             }
             var finalprivkey = makePrivateKey(finalprivkeybigint);
             return {
@@ -651,7 +651,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         for (var i_2 = newstring.length - 1; i_2 >= 0; --i_2) {
             var charIndex = base58CharsIndices[newstring[i_2]];
             if (charIndex === undefined)
-                throw new Error("invalid character: " + newstring[i_2]);
+                throw new Error("geçersiz karakter: " + newstring[i_2]);
             bigint = (bigint.mul(bn_58)).add(new BN(charIndex));
         }
         var bytes = bigintToByteArray(bigint);
@@ -663,15 +663,15 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var sha_result = SHA256(SHA256(bytes));
         for (var i = 0; i < 4; ++i) {
             if (sha_result[i] != checksum[i])
-                throw new Error("invalid checksum");
+                throw new Error("geçersiz checksum");
         }
         return bytes;
     }
     // get ECC public key from bigint
     function getECCKeypair(val) {
         if (val.isZero() || val.gte(ecc_n)) {
-            console.log("invalid value");
-            throw new Error("Invalid EC value");
+            console.log("geçersiz değer");
+            throw new Error("geçersiz EC değeri");
         }
         return EccMultiply(ecc_Gx, ecc_Gy, val);
     }
@@ -853,15 +853,15 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var return_address_type;
         switch (type) {
             case "segwit":
-                return_address_type = "Segwit address:";
+                return_address_type = "Segwit adresi:";
                 address = makeSegwitAddress(keypair);
                 break;
             case "bech32":
-                return_address_type = "Segwit (bech32) address:";
+                return_address_type = "Segwit (bech32) adresi:";
                 address = makeBech32Address(keypair);
                 break;
             case "legacy":
-                return_address_type = "Legacy address:";
+                return_address_type = "Legacy adres:";
                 address = makeAddress(keypair);
                 break;
         }
@@ -939,7 +939,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                 return "invalid checksum";
         }
         if (bytes.pop() !== 1)
-            return "only compressed private keys are supported, they start with 'L' or 'K'";
+            return "sadece sıkıştırılmış özel anahtarlar destekleniyor. 'L' veya 'K' ile başlar";
         bytes.reverse();
         bytes.pop();
         if (bytes.length !== 32)
@@ -952,7 +952,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var keypair = getECCKeypair(bigint);
         var privkey2 = makePrivateKey(bigint);
         if (privkey !== privkey2)
-            return "cannot decode private key";
+            return "özel anahtar çözülemedi";
         return {
             privkey: bigint,
             keypair: keypair
@@ -967,7 +967,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         if (typeof result === "string" || typeof result === "number") {
             if (typeof result === "string") {
                 // error
-                document.getElementById("view_address_information").textContent = "Invalid private key (" + result + ")";
+                document.getElementById("view_address_information").textContent = "geçersiz özel anahtar (" + result + ")";
             }
             else {
                 // bip38 encrypted
@@ -982,10 +982,10 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             document.getElementById("view_address_container").style.display = "none";
             return;
         }
-        document.getElementById("view_address_information").innerHTML = "Details for private key: <strong>" + privkey + "</strong>";
-        document.getElementById("view_address_segwitaddress").textContent = "Segwit address: " + result.segwitAddress;
-        document.getElementById("view_address_bech32address").textContent = "Segwit (bech32) address: " + result.bech32Address;
-        document.getElementById("view_address_legacyaddress").textContent = "Legacy address: " + result.legacyAddress;
+        document.getElementById("view_address_information").innerHTML = "Özel anahtarın detayları: <strong>" + privkey + "</strong>";
+        document.getElementById("view_address_segwitaddress").textContent = "Segwit adresi: " + result.segwitAddress;
+        document.getElementById("view_address_bech32address").textContent = "Segwit (bech32) adresi: " + result.bech32Address;
+        document.getElementById("view_address_legacyaddress").textContent = "Legacy adres: " + result.legacyAddress;
         var segwitQR = qrcode(0, qrErrorCorrectionLevel);
         segwitQR.addData(result.segwitAddress);
         segwitQR.make();
@@ -1016,26 +1016,26 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             return;
         var num = Number(document.getElementById("bulk_count").value) | 0;
         if (isNaN(num)) {
-            bulkTextarea.value = "Enter a number";
+            bulkTextarea.value = "bir rakam girin";
             return;
         }
         if (num < 1) {
-            bulkTextarea.value = "Number must be greater than zero";
+            bulkTextarea.value = "girdiğiniz rakam sıfırdan büyük olmalıdır";
             return;
         }
         if (num > 1000) {
-            bulkTextarea.value = "Number must be 1000 at most";
+            bulkTextarea.value = "rakam en fazla 1000 olabilir";
             return;
         }
         document.getElementById("bulk_radio_type_segwit").disabled = true;
         document.getElementById("bulk_radio_type_bech32").disabled = true;
         document.getElementById("bulk_radio_type_legacy").disabled = true;
         if (document.getElementById("bip38enabled_bulk").checked) {
-            bulkTextarea.value = "Generating initial values";
+            bulkTextarea.value = "ön değerler hazırlanıyor";
             bulkArray = [];
             setImmediate(function () {
                 bip38generate(document.getElementById("bip38_password_box_bulk").value, num, bulkAddressType, function (counter, maxcount) {
-                    bulkTextarea.value = "Generating: " + counter + "/" + maxcount;
+                    bulkTextarea.value = "Üretiliyor: " + counter + "/" + maxcount;
                 }, function (data) {
                     if (typeof data === "string")
                         bulkTextarea.value = data;
@@ -1066,7 +1066,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             var data = generate_address_result(bytes, bulkAddressType, false);
             bulkArray[bulkCurrentCount] = "" + (bulkCurrentCount + 1) + ", \"" + data.address + "\", \"" + data.privkey + "\"";
             ++bulkCurrentCount;
-            bulkTextarea.value = "Generating: " + bulkCurrentCount + "/" + bulkCount;
+            bulkTextarea.value = "Üretiliyor: " + bulkCurrentCount + "/" + bulkCount;
             setImmediate(bulk_generate_timeout);
         }
         else {
@@ -1167,15 +1167,15 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         }
         var num = Number(document.getElementById("paperwallet_generate_count").value) | 0;
         if (isNaN(num)) {
-            paperWalletProgressText.textContent = "Enter a number for count";
+            paperWalletProgressText.textContent = "üretilecek cüzda sayısı";
             return;
         }
         else if (num < 1) {
-            paperWalletProgressText.textContent = "Count must be greater than zero";
+            paperWalletProgressText.textContent = "rakam sıfırdan büyük olmalıdır";
             return;
         }
         else if (num > 20) {
-            paperWalletProgressText.textContent = "Count must be 20 at most";
+            paperWalletProgressText.textContent = "rakam en fazla 20 olabilir";
             return;
         }
         paperWalletCount = num;
@@ -1183,7 +1183,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         paperWalletAddressType = paperAddressType;
         paperWalletQRErrorCorrectionLevel = paperQRErrorCorrectionLevel;
         if (isBip38) {
-            paperWalletProgressText.textContent = "Generating initial values";
+            paperWalletProgressText.textContent = "ön değerler üretiliyor";
             paperWalletArray = [];
             setImmediate(paperWalletBip38Start);
             return;
@@ -1303,7 +1303,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         privkeyDiv.style.fontWeight = "normal";
                         privkeyDiv.style.fontSize = "18px";
                         var addressText = document.createElement("div");
-                        addressText.textContent = "Address:";
+                        addressText.textContent = "Adres:";
                         addressText.style.position = "absolute";
                         addressText.style.top = "15px";
                         addressText.style.left = "120px";
@@ -1311,7 +1311,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         addressText.style.fontWeight = "bold";
                         addressText.style.fontSize = "25px";
                         var privkeyText = document.createElement("div");
-                        privkeyText.textContent = bip38 ? "Encrypted private key:" : "Private key:";
+                        privkeyText.textContent = bip38 ? "Şifrelenmiş özel anahtar:" : "Özel anahtar:";
                         privkeyText.style.position = "absolute";
                         privkeyText.style.bottom = "40px";
                         privkeyText.style.right = bip38 ? "430px" : "514px";
@@ -1322,6 +1322,190 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         parentDiv.appendChild(addressText);
                         parentDiv.appendChild(privkeyDiv);
                         parentDiv.appendChild(privkeyText);
+                        parentDiv.appendChild(addressQRImg);
+                        parentDiv.appendChild(privkeyQRImg);
+                        container.appendChild(parentDiv);
+                    }
+                    break;
+                }
+            case "custom":
+                {
+                    var addressTargetSize_1 = Number(document.getElementById("paperwallet_custom_address_qr_size").value);
+                    var privkeyTargetSize_1 = Number(document.getElementById("paperwallet_custom_privkey_qr_size").value);
+                    var backgroundImageScale_1 = Number(document.getElementById("paperwallet_custom_background_scale").value) / 100;
+                    var addressPosX_1 = Number(document.getElementById("paperwallet_custom_address_posx").value);
+                    var addressPosY_1 = Number(document.getElementById("paperwallet_custom_address_posy").value);
+                    var privkeyPosX_1 = Number(document.getElementById("paperwallet_custom_privkey_posx").value);
+                    var privkeyPosY_1 = Number(document.getElementById("paperwallet_custom_privkey_posy").value);
+                    var addressQRPosX_1 = Number(document.getElementById("paperwallet_custom_address_qr_posx").value);
+                    var addressQRPosY_1 = Number(document.getElementById("paperwallet_custom_address_qr_posy").value);
+                    var addressQRRot_1 = Number(document.getElementById("paperwallet_custom_address_qr_rotation").value);
+                    var privkeyQRPosX_1 = Number(document.getElementById("paperwallet_custom_privkey_qr_posx").value);
+                    var privkeyQRPosY_1 = Number(document.getElementById("paperwallet_custom_privkey_qr_posy").value);
+                    var privkeyQRRot_1 = Number(document.getElementById("paperwallet_custom_privkey_qr_rotation").value);
+                    var addressLineLength_1 = Number(document.getElementById("paperwallet_custom_address_length").value);
+                    var privkeyLineLength_1 = Number(document.getElementById("paperwallet_custom_privkey_length").value);
+                    var addressFontSize_1 = Number(document.getElementById("paperwallet_custom_address_size").value);
+                    var addressFontRot_1 = Number(document.getElementById("paperwallet_custom_address_rotation").value);
+                    var privkeyFontSize_1 = Number(document.getElementById("paperwallet_custom_privkey_size").value);
+                    var privkeyFontRot_1 = Number(document.getElementById("paperwallet_custom_privkey_rotation").value);
+                    var _loop_1 = function (i) {
+                        var backgroundImage = new Image();
+                        backgroundImage.src = paperWalletCustomImageData;
+                        backgroundImage.style.position = "absolute";
+                        backgroundImage.style.top = "0px";
+                        backgroundImage.style.left = "0px";
+                        backgroundImage.style.width = "100%";
+                        backgroundImage.style.height = "100%";
+                        backgroundImage.onload = function () {
+                            var currentData = addressData[i];
+                            var currentAddress = currentData.address;
+                            var currentPrivkey = currentData.privkey;
+                            var currentAddressQR = currentData.addressQR;
+                            var addressSize = currentAddressQR.getModuleCount() + 4;
+                            var finalSize = Math.floor(addressTargetSize_1 / addressSize) + 1;
+                            var addressQRImg = new Image();
+                            addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                            addressQRImg.style.position = "absolute";
+                            addressQRImg.style.top = addressQRPosY_1 + "px";
+                            addressQRImg.style.left = addressQRPosX_1 + "px";
+                            addressQRImg.style.width = addressTargetSize_1 + "px";
+                            addressQRImg.style.height = addressTargetSize_1 + "px";
+                            addressQRImg.style.transform = "rotate(" + addressQRRot_1 + "deg)";
+                            var currentPrivkeyQR = currentData.privkeyQR;
+                            var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                            finalSize = Math.floor(privkeyTargetSize_1 / privkeySize) + 1;
+                            var privkeyQRImg = new Image();
+                            privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                            privkeyQRImg.style.position = "absolute";
+                            privkeyQRImg.style.top = privkeyQRPosY_1 + "px";
+                            privkeyQRImg.style.left = privkeyQRPosX_1 + "px";
+                            privkeyQRImg.style.width = privkeyTargetSize_1 + "px";
+                            privkeyQRImg.style.height = privkeyTargetSize_1 + "px";
+                            privkeyQRImg.style.transform = "rotate(" + privkeyQRRot_1 + "deg)";
+                            var parentDiv = document.createElement("div");
+                            parentDiv.className = "parent_div";
+                            parentDiv.style.position = "relative";
+                            parentDiv.style.border = "2px solid black";
+                            parentDiv.style.width = backgroundImage.width * backgroundImageScale_1 + "px";
+                            parentDiv.style.height = backgroundImage.height * backgroundImageScale_1 + "px";
+                            parentDiv.style.marginBottom = verticalGap + "px";
+                            var addressDiv = document.createElement("div");
+                            addressDiv.innerHTML = splitTextLength(currentAddress, addressLineLength_1);
+                            addressDiv.style.position = "absolute";
+                            addressDiv.style.top = addressPosY_1 + "px";
+                            addressDiv.style.left = addressPosX_1 + "px";
+                            addressDiv.style.fontFamily = "roboto-mono";
+                            addressDiv.style.fontWeight = "normal";
+                            addressDiv.style.fontSize = addressFontSize_1 + "px";
+                            addressDiv.style.transform = "rotate(" + addressFontRot_1 + "deg)";
+                            addressDiv.style.transformOrigin = "0% 0%";
+                            var privkeyDiv = document.createElement("div");
+                            privkeyDiv.innerHTML = splitTextLength(currentPrivkey, privkeyLineLength_1);
+                            privkeyDiv.style.position = "absolute";
+                            privkeyDiv.style.top = privkeyPosY_1 + "px";
+                            privkeyDiv.style.left = privkeyPosX_1 + "px";
+                            privkeyDiv.style.fontFamily = "roboto-mono";
+                            privkeyDiv.style.fontWeight = "normal";
+                            privkeyDiv.style.fontSize = privkeyFontSize_1 + "px";
+                            privkeyDiv.style.transform = "rotate(" + privkeyFontRot_1 + "deg)";
+                            privkeyDiv.style.transformOrigin = "0% 0%";
+                            parentDiv.appendChild(backgroundImage);
+                            parentDiv.appendChild(addressDiv);
+                            parentDiv.appendChild(privkeyDiv);
+                            parentDiv.appendChild(addressQRImg);
+                            parentDiv.appendChild(privkeyQRImg);
+                            container.appendChild(parentDiv);
+                        };
+                    };
+                    for (var i = 0; i < addressData.length; ++i) {
+                        _loop_1(i);
+                    }
+                    break;
+                }
+            case "design1":
+                {
+                    var addressTargetSize = 90;
+                    var privkeyTargetSize = 117;
+                    for (var i = 0; i < addressData.length; ++i) {
+                        var currentData = addressData[i];
+                        var currentAddress = currentData.address;
+                        var currentPrivkey = currentData.privkey;
+                        var currentAddressQR = currentData.addressQR;
+                        var addressSize = currentAddressQR.getModuleCount() + 4;
+                        var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                        var addressQRImg = new Image();
+                        addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                        addressQRImg.style.position = "absolute";
+                        addressQRImg.style.top = "110px";
+                        addressQRImg.style.left = "50px";
+                        addressQRImg.style.width = addressTargetSize + "px";
+                        addressQRImg.style.height = addressTargetSize + "px";
+                        var currentPrivkeyQR = currentData.privkeyQR;
+                        var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                        finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                        var privkeyQRImg = new Image();
+                        privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg.style.position = "absolute";
+                        privkeyQRImg.style.top = "93px";
+                        privkeyQRImg.style.left = "816px";
+                        privkeyQRImg.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg.style.height = privkeyTargetSize + "px";
+                        var parentDiv = document.createElement("div");
+                        parentDiv.className = "parent_div";
+                        parentDiv.style.background = "white";
+                        parentDiv.style.color = "black";
+                        parentDiv.style.position = "relative";
+                        parentDiv.style.border = "2px solid black";
+                        parentDiv.style.width = "1000px";
+                        parentDiv.style.height = "300px";
+                        parentDiv.style.marginBottom = verticalGap + "px";
+                        var addressDiv = document.createElement("div");
+                        addressDiv.textContent = currentAddress;
+                        addressDiv.style.position = "absolute";
+                        addressDiv.style.top = "257px";
+                        addressDiv.style.left = "43px";
+                        addressDiv.style.fontFamily = "roboto-mono";
+                        addressDiv.style.fontWeight = "bold";
+                        addressDiv.style.fontSize = "11px";
+                        var privkeyDiv = document.createElement("div");
+                        privkeyDiv.textContent = currentPrivkey;
+                        privkeyDiv.style.position = "absolute";
+                        privkeyDiv.style.top = "225px";
+                        privkeyDiv.style.left = bip38 ? "582px" : "600px";
+                        privkeyDiv.style.fontFamily = "roboto-mono";
+                        privkeyDiv.style.fontWeight = "bold";
+                        privkeyDiv.style.fontSize = "11px";
+                        var addressDiv2 = document.createElement("div");
+                        addressDiv2.textContent = currentAddress;
+                        addressDiv2.style.position = "absolute";
+                        addressDiv2.style.top = "32px";
+                        addressDiv2.style.right = "681px";
+                        addressDiv2.style.fontFamily = "roboto-mono";
+                        addressDiv2.style.fontWeight = "bold";
+                        addressDiv2.style.fontSize = "11px";
+                        addressDiv2.style.transform = "rotate(180deg)";
+                        var privkeyDiv2 = document.createElement("div");
+                        privkeyDiv2.textContent = currentPrivkey;
+                        privkeyDiv2.style.position = "absolute";
+                        privkeyDiv2.style.top = "65px";
+                        privkeyDiv2.style.left = bip38 ? "582px" : "600px";
+                        privkeyDiv2.style.fontFamily = "roboto-mono";
+                        privkeyDiv2.style.fontWeight = "bold";
+                        privkeyDiv2.style.fontSize = "11px";
+                        privkeyDiv2.style.transform = "rotate(180deg)";
+                        var backgroundGraphic = new Image();
+                        backgroundGraphic.src = window["imageSources"]["bitcoinpaperwalletcom.jpg"];
+                        backgroundGraphic.style.position = "absolute";
+                        backgroundGraphic.style.top = "0px";
+                        backgroundGraphic.style.left = "0px";
+                        backgroundGraphic.style.width = "100%";
+                        backgroundGraphic.style.height = "100%";
+                        parentDiv.appendChild(backgroundGraphic);
+                        parentDiv.appendChild(addressDiv);
+                        parentDiv.appendChild(privkeyDiv);
+                        parentDiv.appendChild(addressDiv2);
+                        parentDiv.appendChild(privkeyDiv2);
                         parentDiv.appendChild(addressQRImg);
                         parentDiv.appendChild(privkeyQRImg);
                         container.appendChild(parentDiv);
@@ -1383,6 +1567,81 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         privkeyDiv.style.fontWeight = "bold";
                         var backgroundGraphic = new Image();
                         backgroundGraphic.src = window["imageSources"]["dorian.jpg"];
+                        backgroundGraphic.style.position = "absolute";
+                        backgroundGraphic.style.top = "0px";
+                        backgroundGraphic.style.left = "0px";
+                        backgroundGraphic.style.width = "100%";
+                        backgroundGraphic.style.height = "100%";
+                        parentDiv.appendChild(backgroundGraphic);
+                        parentDiv.appendChild(addressDiv);
+                        parentDiv.appendChild(privkeyDiv);
+                        parentDiv.appendChild(addressQRImg);
+                        parentDiv.appendChild(privkeyQRImg);
+                        container.appendChild(parentDiv);
+                    }
+                    break;
+                }
+            case "design3":
+                {
+                    var addressTargetSize = 120;
+                    var privkeyTargetSize = 120;
+                    for (var i = 0; i < addressData.length; ++i) {
+                        var currentData = addressData[i];
+                        var currentAddress = currentData.address;
+                        var currentPrivkey = currentData.privkey;
+                        var currentAddressQR = currentData.addressQR;
+                        var addressSize = currentAddressQR.getModuleCount() + 4;
+                        var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                        var addressQRImg = new Image();
+                        addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                        addressQRImg.style.position = "absolute";
+                        addressQRImg.style.top = "265px";
+                        addressQRImg.style.left = "780px";
+                        addressQRImg.style.width = addressTargetSize + "px";
+                        addressQRImg.style.height = addressTargetSize + "px";
+                        addressQRImg.style.transform = "rotate(270deg)";
+                        var currentPrivkeyQR = currentData.privkeyQR;
+                        var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                        finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                        var privkeyQRImg = new Image();
+                        privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg.style.position = "absolute";
+                        privkeyQRImg.style.top = "40px";
+                        privkeyQRImg.style.left = "442px";
+                        privkeyQRImg.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg.style.height = privkeyTargetSize + "px";
+                        privkeyQRImg.style.transform = "rotate(90deg)";
+                        var parentDiv = document.createElement("div");
+                        parentDiv.className = "parent_div";
+                        parentDiv.style.background = "white";
+                        parentDiv.style.color = "black";
+                        parentDiv.style.position = "relative";
+                        parentDiv.style.border = "2px solid black";
+                        parentDiv.style.width = "1001px";
+                        parentDiv.style.height = "425px";
+                        parentDiv.style.marginBottom = verticalGap + "px";
+                        var addressDiv = document.createElement("div");
+                        addressDiv.innerHTML = splitTextLength(currentAddress, 17);
+                        addressDiv.style.position = "absolute";
+                        addressDiv.style.top = "391px";
+                        addressDiv.style.left = "905px";
+                        addressDiv.style.fontFamily = "roboto-mono";
+                        addressDiv.style.fontWeight = "normal";
+                        addressDiv.style.fontSize = "13px";
+                        addressDiv.style.transform = "rotate(270deg)";
+                        addressDiv.style.transformOrigin = "0% 0%";
+                        var privkeyDiv = document.createElement("div");
+                        privkeyDiv.innerHTML = splitTextLength(currentPrivkey, bip38 ? 20 : 18);
+                        privkeyDiv.style.position = "absolute";
+                        privkeyDiv.style.top = "30px";
+                        privkeyDiv.style.left = "434px";
+                        privkeyDiv.style.fontFamily = "roboto-mono";
+                        privkeyDiv.style.fontWeight = "normal";
+                        privkeyDiv.style.fontSize = bip38 ? "12px" : "13px";
+                        privkeyDiv.style.transform = "rotate(90deg)";
+                        privkeyDiv.style.transformOrigin = "0% 0%";
+                        var backgroundGraphic = new Image();
+                        backgroundGraphic.src = window["imageSources"]["walletgeneratornet.jpg"];
                         backgroundGraphic.style.position = "absolute";
                         backgroundGraphic.style.top = "0px";
                         backgroundGraphic.style.left = "0px";
@@ -1466,7 +1725,253 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                     }
                     break;
                 }
-
+            case "design5":
+                {
+                    var addressTargetSize = 116;
+                    var privkeyTargetSize = 116;
+                    for (var i = 0; i < addressData.length; ++i) {
+                        var currentData = addressData[i];
+                        var currentAddress = currentData.address;
+                        var currentAddressQR = currentData.addressQR;
+                        var addressSize = currentAddressQR.getModuleCount() + 4;
+                        var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                        var addressQRImg = new Image();
+                        addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                        addressQRImg.style.position = "absolute";
+                        addressQRImg.style.top = "34px";
+                        addressQRImg.style.left = "42px";
+                        addressQRImg.style.width = addressTargetSize + "px";
+                        addressQRImg.style.height = addressTargetSize + "px";
+                        var currentPrivkeyQR = currentData.privkeyQR;
+                        var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                        finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                        var privkeyQRImg = new Image();
+                        privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg.style.position = "absolute";
+                        privkeyQRImg.style.top = "186px";
+                        privkeyQRImg.style.left = "622px";
+                        privkeyQRImg.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg.style.height = privkeyTargetSize + "px";
+                        var addressQRImg2 = new Image();
+                        addressQRImg2.src = currentAddressQR.createDataURL(finalSize, 0);
+                        addressQRImg2.style.position = "absolute";
+                        addressQRImg2.style.top = "34px";
+                        addressQRImg2.style.left = "867px";
+                        addressQRImg2.style.width = addressTargetSize + "px";
+                        addressQRImg2.style.height = addressTargetSize + "px";
+                        addressQRImg2.style.transform = "rotate(270deg)";
+                        var privkeyQRImg2 = new Image();
+                        privkeyQRImg2.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg2.style.position = "absolute";
+                        privkeyQRImg2.style.top = "186px";
+                        privkeyQRImg2.style.left = "867px";
+                        privkeyQRImg2.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg2.style.height = privkeyTargetSize + "px";
+                        privkeyQRImg2.style.transform = "rotate(270deg)";
+                        var parentDiv = document.createElement("div");
+                        parentDiv.className = "parent_div";
+                        parentDiv.style.background = "white";
+                        parentDiv.style.color = "black";
+                        parentDiv.style.position = "relative";
+                        parentDiv.style.border = "2px solid black";
+                        parentDiv.style.width = "1020px";
+                        parentDiv.style.height = "340px";
+                        parentDiv.style.marginBottom = verticalGap + "px";
+                        var addressDiv = document.createElement("div");
+                        addressDiv.textContent = currentAddress;
+                        addressDiv.style.position = "absolute";
+                        addressDiv.style.top = "29px";
+                        addressDiv.style.left = "213px";
+                        addressDiv.style.fontFamily = "roboto-mono";
+                        addressDiv.style.fontWeight = "normal";
+                        addressDiv.style.fontSize = "14px";
+                        var addressDiv2 = document.createElement("div");
+                        addressDiv2.textContent = currentAddress.substr(0, 14);
+                        addressDiv2.style.position = "absolute";
+                        addressDiv2.style.top = "82px";
+                        addressDiv2.style.left = "761px";
+                        addressDiv2.style.fontFamily = "roboto-mono";
+                        addressDiv2.style.fontWeight = "normal";
+                        addressDiv2.style.fontSize = "14px";
+                        addressDiv2.style.transform = "rotate(270deg)";
+                        var backgroundGraphic = new Image();
+                        backgroundGraphic.src = window["imageSources"]["design_by_mark_and_barbara_messer.jpg"];
+                        backgroundGraphic.style.position = "absolute";
+                        backgroundGraphic.style.top = "0px";
+                        backgroundGraphic.style.left = "0px";
+                        backgroundGraphic.style.width = "100%";
+                        backgroundGraphic.style.height = "100%";
+                        parentDiv.appendChild(backgroundGraphic);
+                        parentDiv.appendChild(addressDiv);
+                        parentDiv.appendChild(addressDiv2);
+                        parentDiv.appendChild(addressQRImg);
+                        parentDiv.appendChild(privkeyQRImg);
+                        parentDiv.appendChild(addressQRImg2);
+                        parentDiv.appendChild(privkeyQRImg2);
+                        container.appendChild(parentDiv);
+                    }
+                    break;
+                }
+            case "design6":
+                {
+                    var addressTargetSize = 184;
+                    var privkeyTargetSize = 210;
+                    for (var i = 0; i < addressData.length; ++i) {
+                        var currentData = addressData[i];
+                        var currentAddress = currentData.address;
+                        var currentPrivkey = currentData.privkey;
+                        var currentAddressQR = currentData.addressQR;
+                        var addressSize = currentAddressQR.getModuleCount() + 4;
+                        var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                        var addressQRImg = new Image();
+                        addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                        addressQRImg.style.position = "absolute";
+                        addressQRImg.style.top = "110px";
+                        addressQRImg.style.left = "53px";
+                        addressQRImg.style.width = addressTargetSize + "px";
+                        addressQRImg.style.height = addressTargetSize + "px";
+                        var currentPrivkeyQR = currentData.privkeyQR;
+                        var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                        finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                        var privkeyQRImg = new Image();
+                        privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg.style.position = "absolute";
+                        privkeyQRImg.style.top = "228px";
+                        privkeyQRImg.style.left = "757px";
+                        privkeyQRImg.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg.style.height = privkeyTargetSize + "px";
+                        var parentDiv = document.createElement("div");
+                        parentDiv.className = "parent_div";
+                        parentDiv.style.background = "white";
+                        parentDiv.style.color = "black";
+                        parentDiv.style.position = "relative";
+                        parentDiv.style.border = "2px solid black";
+                        parentDiv.style.width = "1004px";
+                        parentDiv.style.height = "538px";
+                        parentDiv.style.marginBottom = verticalGap + "px";
+                        var addressDiv = document.createElement("div");
+                        addressDiv.textContent = currentAddress;
+                        addressDiv.style.position = "absolute";
+                        addressDiv.style.top = "480px";
+                        addressDiv.style.left = "291px";
+                        addressDiv.style.fontFamily = "roboto-mono";
+                        addressDiv.style.fontWeight = "bold";
+                        addressDiv.style.fontSize = "18px";
+                        addressDiv.style.transform = "rotate(270deg)";
+                        addressDiv.style.transformOrigin = "0% 0%";
+                        var privkeyDiv = document.createElement("div");
+                        privkeyDiv.textContent = currentPrivkey;
+                        privkeyDiv.style.position = "absolute";
+                        privkeyDiv.style.top = "483px";
+                        privkeyDiv.style.left = "702px";
+                        privkeyDiv.style.fontFamily = "roboto-mono";
+                        privkeyDiv.style.fontWeight = "bold";
+                        privkeyDiv.style.fontSize = bip38 ? "13px" : "15px";
+                        privkeyDiv.style.transform = "rotate(270deg)";
+                        privkeyDiv.style.transformOrigin = "0% 0%";
+                        var backgroundGraphic = new Image();
+                        backgroundGraphic.src = window["imageSources"]["bitaddressorg.jpg"];
+                        backgroundGraphic.style.position = "absolute";
+                        backgroundGraphic.style.top = "0px";
+                        backgroundGraphic.style.left = "0px";
+                        backgroundGraphic.style.width = "100%";
+                        backgroundGraphic.style.height = "100%";
+                        parentDiv.appendChild(backgroundGraphic);
+                        parentDiv.appendChild(addressDiv);
+                        parentDiv.appendChild(privkeyDiv);
+                        parentDiv.appendChild(addressQRImg);
+                        parentDiv.appendChild(privkeyQRImg);
+                        container.appendChild(parentDiv);
+                    }
+                    break;
+                }
+            case "design7":
+                {
+                    var addressTargetSize = 116;
+                    var privkeyTargetSize = 116;
+                    for (var i = 0; i < addressData.length; ++i) {
+                        var currentData = addressData[i];
+                        var currentAddress = currentData.address;
+                        var currentPrivkey = currentData.privkey;
+                        var currentAddressQR = currentData.addressQR;
+                        var addressSize = currentAddressQR.getModuleCount() + 4;
+                        var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                        var addressQRImg = new Image();
+                        addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                        addressQRImg.style.position = "absolute";
+                        addressQRImg.style.top = "34px";
+                        addressQRImg.style.left = "40px";
+                        addressQRImg.style.width = addressTargetSize + "px";
+                        addressQRImg.style.height = addressTargetSize + "px";
+                        var currentPrivkeyQR = currentData.privkeyQR;
+                        var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                        finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                        var privkeyQRImg = new Image();
+                        privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg.style.position = "absolute";
+                        privkeyQRImg.style.top = "182px";
+                        privkeyQRImg.style.left = "610px";
+                        privkeyQRImg.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg.style.height = privkeyTargetSize + "px";
+                        var privkeyQRImg2 = new Image();
+                        privkeyQRImg2.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg2.style.position = "absolute";
+                        privkeyQRImg2.style.top = "182px";
+                        privkeyQRImg2.style.left = "852px";
+                        privkeyQRImg2.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg2.style.height = privkeyTargetSize + "px";
+                        var parentDiv = document.createElement("div");
+                        parentDiv.className = "parent_div";
+                        parentDiv.style.background = "white";
+                        parentDiv.style.color = "black";
+                        parentDiv.style.position = "relative";
+                        parentDiv.style.border = "2px solid black";
+                        parentDiv.style.width = "1004px";
+                        parentDiv.style.height = "334px";
+                        parentDiv.style.marginBottom = verticalGap + "px";
+                        var addressDiv = document.createElement("div");
+                        addressDiv.textContent = currentAddress;
+                        addressDiv.style.position = "absolute";
+                        addressDiv.style.top = "25px";
+                        addressDiv.style.left = "205px";
+                        addressDiv.style.fontFamily = "roboto-mono";
+                        addressDiv.style.fontWeight = "bold";
+                        addressDiv.style.fontSize = "18px";
+                        var addressDiv2 = document.createElement("div");
+                        addressDiv2.textContent = currentAddress.substr(0, 11);
+                        addressDiv2.style.position = "absolute";
+                        addressDiv2.style.top = "152px";
+                        addressDiv2.style.left = "794px";
+                        addressDiv2.style.fontFamily = "roboto-mono";
+                        addressDiv2.style.fontWeight = "bold";
+                        addressDiv2.style.fontSize = "18px";
+                        addressDiv2.style.transform = "rotate(270deg)";
+                        addressDiv2.style.transformOrigin = "0% 0%";
+                        var privkeyDiv = document.createElement("div");
+                        privkeyDiv.innerHTML = splitTextLength(currentPrivkey, bip38 ? 12 : 11);
+                        privkeyDiv.style.position = "absolute";
+                        privkeyDiv.style.top = "30px";
+                        privkeyDiv.style.left = bip38 ? "848px" : "850px";
+                        privkeyDiv.style.fontFamily = "roboto-mono";
+                        privkeyDiv.style.fontWeight = "bold";
+                        privkeyDiv.style.fontSize = bip38 ? "17px" : "18px";
+                        var backgroundGraphic = new Image();
+                        backgroundGraphic.src = window["imageSources"]["design_by_timbo925.svg"];
+                        backgroundGraphic.style.top = "0px";
+                        backgroundGraphic.style.left = "0px";
+                        backgroundGraphic.style.width = "100%";
+                        backgroundGraphic.style.height = "100%";
+                        parentDiv.appendChild(backgroundGraphic);
+                        parentDiv.appendChild(addressDiv);
+                        parentDiv.appendChild(addressDiv2);
+                        parentDiv.appendChild(privkeyDiv);
+                        parentDiv.appendChild(addressQRImg);
+                        parentDiv.appendChild(privkeyQRImg);
+                        parentDiv.appendChild(privkeyQRImg2);
+                        container.appendChild(parentDiv);
+                    }
+                    break;
+                }
             case "design8":
                 {
                     var addressTargetSize = 116;
@@ -1561,7 +2066,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var raw = document.getElementById("paper_custom_addresses").value.replace(/\"/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
         var trim = raw.trim();
         if (trim === "") {
-            errorMessageDiv.textContent = "No data entered";
+            errorMessageDiv.textContent = "veri girilmedi";
             return;
         }
         var data = trim.split(",");
@@ -1572,7 +2077,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             if (split.length === 0)
                 continue;
             else if (split.length !== 2) {
-                errorMessageDiv.textContent = "Invalid format: " + data[i];
+                errorMessageDiv.textContent = "geçersiz format: " + data[i];
                 return;
             }
             var address = split[0];
@@ -1580,7 +2085,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             if (privkey.length === 58)
                 isBip38 = true;
             else if (privkey.length !== 52) {
-                errorMessageDiv.textContent = "Invalid private key: " + privkey;
+                errorMessageDiv.textContent = "Geçersiz özel anahtar: " + privkey;
                 return;
             }
             var currentAddressQR = qrcode(0, paperQRErrorCorrectionLevel);
@@ -1612,21 +2117,21 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var errorMessageDiv = document.getElementById("paper_custom_privkey_bip38_error");
         var password = document.getElementById("bip38_password_box_paper").value;
         if (password === "") {
-            errorMessageDiv.textContent = "Password must not be empty";
+            errorMessageDiv.textContent = "Şifre boş olamaz";
             return;
         }
         var privkeys = document.getElementById("paper_custom_privkeys_bip38_textarea").value.split(/\s+/g);
         if (privkeys.length === 0) {
-            errorMessageDiv.textContent = "No private keys entered";
+            errorMessageDiv.textContent = "Özel anahtar girilmedi";
             return;
         }
-        paperWalletProgressText.textContent = "Checking private keys";
+        paperWalletProgressText.textContent = "Özel anahtar kontrol ediliyor";
         setImmediate(function () {
             function ShowError(privkey, reason) {
                 paperWalletProgressText.textContent = "";
-                errorMessageDiv.textContent = "Private key \"" +
+                errorMessageDiv.textContent = "Özel anahtar \"" +
                     (privkey.length < 8 ? privkey : privkey.substr(0, 8) + "...") +
-                    "\" is not valid: " + reason;
+                    "\" geçerli değil: " + reason;
             }
             var privkeyBigints = [];
             for (var i = 0; i < privkeys.length; ++i) {
@@ -1634,7 +2139,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                 if (currentPrivkey === "")
                     continue;
                 if (/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]/.test(currentPrivkey)) {
-                    ShowError(currentPrivkey, "private key contains invalid characters");
+                    ShowError(currentPrivkey, "özel anahtar geçersiz karakter içeriyor");
                     return;
                 }
                 var keypair = privkeyStringToKeyPair(currentPrivkey);
@@ -1643,14 +2148,14 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                     return;
                 }
                 if (keypair.privkey.isZero() || keypair.privkey.gte(ecc_n)) {
-                    ShowError(currentPrivkey, "invalid private key value");
+                    ShowError(currentPrivkey, "Geçersiz özel anahtar");
                     return;
                 }
                 privkeyBigints.push(keypair);
             }
             if (privkeyBigints.length === 0) {
                 paperWalletProgressText.textContent = "";
-                errorMessageDiv.textContent = "No private keys entered";
+                errorMessageDiv.textContent = "Özel anahtar girilmedi";
                 return;
             }
             errorMessageDiv.textContent = "";
@@ -1695,7 +2200,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             paperWalletCreate(paper_custom_privkeys_encrypted, true);
             return;
         }
-        paperWalletProgressText.textContent = "Encrypting private keys: " + (index + 1) + " / " + paper_custom_privkeys_bigints_with_keypair.length;
+        paperWalletProgressText.textContent = "Özel anahtarlar çözülüyor: " + (index + 1) + " / " + paper_custom_privkeys_bigints_with_keypair.length;
         var currentPrivkey = paper_custom_privkeys_bigints_with_keypair[index];
         var privKeyAndAddress = bip38encrypt(currentPrivkey, paper_custom_privkeys_password);
         var finaladdress;
@@ -1729,6 +2234,19 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         });
         setImmediate(paperWalletBip38FromUserPrivkeys_timeout);
     }
+    // sources of the paper wallet designs
+    var paperWalletStyleSources = {
+        "design0": "",
+        "design1": "Kaynak: <a href=\"https://bitcoinpaperwallet.com\">https://bitcoinpaperwallet.com</a>",
+        "design2": "Kaynak: <a href=\"https://redd.it/20rml2\">https://redd.it/20rml2</a>",
+        "design3": "Kaynak: <a href=\"https://walletgenerator.net\">https://walletgenerator.net</a>",
+        "design4": "Kaynak: <a href=\"https://steemit.com/bitcoin/@bunnychum/bitcoin-paper-wallet-redesigned-as-currency-note-free-psd-to-download\">https://steemit.com/bitcoin/@bunnychum/...</a>",
+        "design5": "Kaynak: <a href=\"https://i.pinimg.com/originals/a3/89/89/a38989778a3e113a657016f5fab1803b.png\">https://i.pinimg.com/originals/a3/89/89/...</a>",
+        "design6": "Kaynak: <a href=\"https://bitaddress.org\">https://bitaddress.org</a>",
+        "design7": "Kaynak: <a href=\"https://github.com/Timbo925/walletprinter/blob/d8ae0eab0c5ef09b0ade59009d544ae5f78b12f8/img/wallet_designs/timbo-grey.svg\">https://github.com/Timbo925/walletprinter/...</a>",
+        "design8": "Kaynak: <a href=\"https://github.com/nieldlr/walletprinter/blob/master/img/wallet_designs/75RTUGA.jpg\">https://github.com/nieldlr/walletprinter/.../75RTUGA.jpg</a>",
+        "custom": "",
+    };
     // selected paper wallet style changed, update link to the design source
     function paperWalletStyleChange(elem) {
         paperWalletStyle = elem.value;
@@ -2210,10 +2728,10 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     }
     function VerifyMnemonic(mnemonic) {
         if (mnemonic.trim() === "")
-            return "mnemonic seed is empty";
+            return "mnemonic seed boş";
         var words = mnemonic.match(/\S+/g);
         if (words === null)
-            return "mnemonic seed contains invalid characters";
+            return "mnemonic seed geçersiz kelime içeriyor";
         var bitString = "";
         for (var _i = 0, words_1 = words; _i < words_1.length; _i++) {
             var word = words_1[_i];
@@ -2320,11 +2838,11 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                 decodedKey = base58checkDecode(seed);
             }
             catch (err) {
-                ShowError("Invalid BIP32 extended key: " + err.message);
+                ShowError("Geçersiz BIP32 anahtarı: " + err.message);
                 return;
             }
             if (decodedKey.length !== 78) {
-                ShowError("Invalid BIP32 extended key: invalid length");
+                ShowError("Geçersiz BIP32 anahtarı: uzumlUk hatası");
                 return;
             }
             switch (seed[0]) {
@@ -2349,7 +2867,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             // seed
             var result = VerifyMnemonic(seed);
             if (typeof result === "string") {
-                ShowError("Invalid mnemonic seed: " + result);
+                ShowError("Geçersiz mnemonic seed: " + result);
                 return;
             }
             seed = NormalizeMnemonic(seed);
@@ -2501,7 +3019,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     function SeedToggleExtendedKeys(button) {
         seedExtendedKeysVisible = !seedExtendedKeysVisible;
         document.getElementById("seed_details_results_extended_keys").style.display = seedExtendedKeysVisible ? "" : "none";
-        button.textContent = seedExtendedKeysVisible ? "Hide extended keys" : "Show extended keys";
+        button.textContent = seedExtendedKeysVisible ? "Uzatılmış Anahtarları Gizle" : "Uzatılmış Anahtarları Göster";
     }
     var layoutPrintAreas = {
         "singleaddress": {
@@ -2607,7 +3125,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             alert("No tests are implemented for testnet!");
             return;
         }
-        if (!confirm("This can take up to 20-30 seconds, do you want to continue?"))
+        if (!confirm("Bu işlem 20-30 saniye alabilir, devam?"))
             return;
         var failedTestMessages = [];
         function assertEqual(actual, expected, errorMessage) {
@@ -3052,7 +3570,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         TestBip39();
         TestBip32();
         if (failedTestMessages.length === 0) {
-            alert("All tests OK");
+            alert("Tüm testler başarılı");
             return;
         }
         failedTestMessages.forEach(function (err) { return console.error(err); });

@@ -1,0 +1,1 @@
+##### Bu klasör, kod audit işleminin kolay yapılması için parçalara ayrılmış index.html dosyasını içerir.
